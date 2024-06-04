@@ -28,7 +28,7 @@ jobs:
               # Might be good to test using different node versions
               
             - run: npm ci
-            - run: npm run build #is this even needed? who knows who knows? >:3
+
 
             - name: run tests
               run: |
