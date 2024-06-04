@@ -7,10 +7,6 @@ on:
   pull_request:
     branches:
         - main
-  push:
-    branches:
-        - main
-        - GitHub-Actions
 
 jobs:
     runChecks:
@@ -31,6 +27,7 @@ jobs:
 
 
             - name: run tests
+              if: '!cancelled()'
               run: |
                 npm run test
                 
@@ -43,6 +40,7 @@ jobs:
 
 
             - name: run lint
+              if: '!cancelled()'
               run: |
                 npm run lint
 
@@ -55,10 +53,12 @@ jobs:
 
 
             - name: run format
+              if: '!cancelled()'
               run: |
                 npm run format
 
             - uses: marocchino/sticky-pull-request-comment@v2
+              if: '!cancelled()'
               with:
                 header: format
                 message: |
@@ -66,6 +66,7 @@ jobs:
 
             # can't have a name since there is no "run". So it' just a blank uses
             - uses: marocchino/sticky-pull-request-comment@v2
+              if: '!cancelled()'
               with:
                 header: check result comment
                 message: |
