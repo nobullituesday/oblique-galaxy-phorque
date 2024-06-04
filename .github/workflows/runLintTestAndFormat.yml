@@ -29,40 +29,20 @@ jobs:
             - name: run tests
               if: '!cancelled()'
               run: |
-                npm run test
-                
-            - uses: marocchino/sticky-pull-request-comment@v2
-              with:
-                header: test
-                message: |
-                    Testing Message Test
-
+                npm run test | tee test-output.txt
 
 
             - name: run lint
               if: '!cancelled()'
               run: |
-                npm run lint
-
-            - uses: marocchino/sticky-pull-request-comment@v2
-              with:
-                header: lint
-                message: |
-                    Testing Message Lint
-
+                npm run lint | tee lint-output.txt
 
 
             - name: run format
               if: '!cancelled()'
               run: |
-                npm run format
+                npm run format | tee format-output.txt
 
-            - uses: marocchino/sticky-pull-request-comment@v2
-              if: '!cancelled()'
-              with:
-                header: format
-                message: |
-                    Testing Message Format
 
             # can't have a name since there is no "run". So it' just a blank uses
             - uses: marocchino/sticky-pull-request-comment@v2
@@ -70,7 +50,7 @@ jobs:
               with:
                 header: check result comment
                 message: |
-                    aHUJM
+                    Wicked!
 
 # The basic idea is the following: 
 # Write the output of each step into a separate file and then
