@@ -75,4 +75,5 @@ jobs:
 # Write the output of each step into a separate file and then
 # then read the file, transform as necessary and write a nice commentuwu
 # don't forget to make cool tables using markdown
+# test.png
             
