@@ -52,6 +52,24 @@ jobs:
                 message: |
                     Wicked!
 
+            - name: Aggregate results
+              run: |
+                echo "## Lint Results" > comment-body.txt
+                cat lint-output.txt >> comment-body.txt
+                echo "" >> comment-body.txt
+                echo "## Test Results" >> comment-body.txt
+                cat test-output.txt >> comment-body.txt
+                echo "" >> comment-body.txt
+                echo "## Format Results" >> comment-body.txt
+                cat format-output.txt >> comment-body.txt
+            
+
+            - uses: marocchino/sticky-pull-request-comment@v2
+              with:
+                header: 'CI Results'
+                message: |
+                    $(cat comment-body.txt)
+
 # The basic idea is the following: 
 # Write the output of each step into a separate file and then
 # then read the file, transform as necessary and write a nice commentuwu
