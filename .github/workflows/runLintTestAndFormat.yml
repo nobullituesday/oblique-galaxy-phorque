@@ -7,10 +7,6 @@ on:
   pull_request:
     branches:
         - main
-  push:
-    branches:
-        - main
-        - GitHub-Actions
 
 jobs:
     runChecks:
@@ -28,51 +24,67 @@ jobs:
               # Might be good to test using different node versions
               
             - run: npm ci
-            - run: npm run build #is this even needed? who knows who knows? >:3
+
 
             - name: run tests
+              if: '!cancelled()'
               run: |
-                npm run test
-                
-            - uses: marocchino/sticky-pull-request-comment@v2
-              with:
-                header: test
-                message: |
-                    Testing Message Test
-
+                npm run test | tee test-output.txt
 
 
             - name: run lint
+              if: '!cancelled()'
               run: |
-                npm run lint
-
-            - uses: marocchino/sticky-pull-request-comment@v2
-              with:
-                header: lint
-                message: |
-                    Testing Message Lint
-
+                npm run lint | tee lint-output.txt
 
 
             - name: run format
+              if: '!cancelled()'
               run: |
-                npm run format
+                npm run format | tee format-output.txt
 
-            - uses: marocchino/sticky-pull-request-comment@v2
-              with:
-                header: format
-                message: |
-                    Testing Message Format
 
-            # can't have a name since there is no "run". So it' just a blank uses
-            - uses: marocchino/sticky-pull-request-comment@v2
-              with:
-                header: check result comment
-                message: |
-                    aHUJM
+      
 
-# The basic idea is the following: 
-# Write the output of each step into a separate file and then
-# then read the file, transform as necessary and write a nice commentuwu
-# don't forget to make cool tables using markdown
+            - name: Aggregate results
+              run: |
+                set -e
+      
+                # Ensure all files exist
+                touch test-output.txt lint-output.txt format-output.txt
+      
+                TEST_RESULTS=$(cat test-output.txt)
+                LINT_RESULTS=$(cat lint-output.txt)
+                FORMAT_RESULTS=$(cat format-output.txt)
+      
+                TEST_SUMMARY=$(echo "$TEST_RESULTS" | grep -E 'Tests.*' || echo "Tests passed without errors VERY SUS")
+                LINT_SUMMARY=$(echo "$LINT_RESULTS" | grep -E 'lint.*' || echo "Linting passed without errors VERY SUS")
+                FORMAT_SUMMARY=$(echo "$FORMAT_RESULTS" | grep -E 'format.*' || echo "Formatting passed without errors VERY SUS")
+      
+                echo "## CI Results" > comment-body.txt
+                echo "### Lint Results" >> comment-body.txt
+                echo "\`\`\`" >> comment-body.txt
+                echo "$LINT_SUMMARY" >> comment-body.txt
+                echo "\`\`\`" >> comment-body.txt
+      
+                echo "### Test Results" >> comment-body.txt
+                echo "\`\`\`" >> comment-body.txt
+                echo "$TEST_SUMMARY" >> comment-body.txt
+                echo "\`\`\`" >> comment-body.txt
+      
+                echo "### Format Results" >> comment-body.txt
+                echo "\`\`\`" >> comment-body.txt
+                echo "$FORMAT_SUMMARY" >> comment-body.txt
+                echo "\`\`\`" >> comment-body.txt
+
+                COMMENT_BODY=$(cat comment-body.txt)
+                echo "COMMENT_BODY<<EOF" >> $GITHUB_ENV
+                echo "$COMMENT_BODY" >> $GITHUB_ENV
+                echo "EOF" >> $GITHUB_ENV
             
+            - name: Post results comment
+              uses: marocchino/sticky-pull-request-comment@v2
+              with:
+                header: 'CI Results'
+                message: |
+                  ${{ env.COMMENT_BODY }}
