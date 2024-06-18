@@ -76,8 +76,12 @@ jobs:
                 echo "\`\`\`" >> comment-body.txt
                 echo "$FORMAT_SUMMARY" >> comment-body.txt
                 echo "\`\`\`" >> comment-body.txt
+
+                COMMENT_BODY=$(cat comment-body.txt)
+                echo "COMMENT_BODY<<EOF" >> $GITHUB_ENV
+                echo "$COMMENT_BODY" >> $GITHUB_ENV
                 echo "EOF" >> $GITHUB_ENV
-      
+            
             - name: Post results comment
               uses: marocchino/sticky-pull-request-comment@v2
               with:
