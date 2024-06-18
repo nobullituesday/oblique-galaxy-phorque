@@ -57,9 +57,9 @@ jobs:
                 LINT_RESULTS=$(cat lint-output.txt)
                 FORMAT_RESULTS=$(cat format-output.txt)
       
-                TEST_SUMMARY=$(echo "$TEST_RESULTS" | grep -E 'Tests:.*' || echo "Tests passed without errors")
-                LINT_SUMMARY=$(echo "$LINT_RESULTS" | grep -E 'lint.*' || echo "Linting passed without errors")
-                FORMAT_SUMMARY=$(echo "$FORMAT_RESULTS" | grep -E 'format.*' || echo "Formatting passed without errors")
+                TEST_SUMMARY=$(echo "$TEST_RESULTS" | grep -E 'Tests:.*' || echo "Tests passed without errors VERY SUS")
+                LINT_SUMMARY=$(echo "$LINT_RESULTS" | grep -E 'lint.*' || echo "Linting passed without errors VERY SUS")
+                FORMAT_SUMMARY=$(echo "$FORMAT_RESULTS" | grep -E 'format.*' || echo "Formatting passed without errors VERY SUS")
       
                 echo "## CI Results" > comment-body.txt
                 echo "### Lint Results" >> comment-body.txt
