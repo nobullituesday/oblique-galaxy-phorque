@@ -68,7 +68,7 @@ jobs:
               with:
                 header: 'CI Results'
                 message: |
-                    $(cat comment-body.txt)
+                    $(cat comment-body.txt) #yeah nice try xD 
 
 # The basic idea is the following: 
 # Write the output of each step into a separate file and then
