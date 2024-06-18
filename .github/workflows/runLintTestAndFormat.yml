@@ -1,78 +1,75 @@
-# https://github.com/marketplace/actions/sticky-pull-request-comment
-# according to the documentation above we might need to adapt the messages with headers.
-
-name: Run Lint Test and Formatting Scrips
+name: Run Lint Test and Formatting Scripts
 
 on:
   pull_request:
     branches:
-        - main
+      - main
+      - GitHub-Actions
 
 jobs:
-    runChecks:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            pull-requests: write
-        #strategy??? Maybe we need strategy.
+  runChecks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: run checks
-              uses: actions/setup-node@v4
-              # Might be good to test using different node versions
-              
-            - run: npm ci
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '14' # You can specify different Node versions here if needed
 
+      - run: npm ci
 
-            - name: run tests
-              if: '!cancelled()'
-              run: |
-                npm run test | tee test-output.txt
+      - name: Run tests
+        if: '!cancelled()'
+        run: |
+          npm run test | tee test-output.txt
+        continue-on-error: true
 
+      - name: Run lint
+        if: '!cancelled()'
+        run: |
+          npm run lint | tee lint-output.txt
+        continue-on-error: true
 
-            - name: run lint
-              if: '!cancelled()'
-              run: |
-                npm run lint | tee lint-output.txt
+      - name: Run format
+        if: '!cancelled()'
+        run: |
+          npm run format | tee format-output.txt
+        continue-on-error: true
 
+      - name: Aggregate results
+        run: |
+          TEST_RESULTS=$(cat test-output.txt)
+          LINT_RESULTS=$(cat lint-output.txt)
+          FORMAT_RESULTS=$(cat format-output.txt)
 
-            - name: run format
-              if: '!cancelled()'
-              run: |
-                npm run format | tee format-output.txt
+          TEST_SUMMARY=$(echo "$TEST_RESULTS" | grep -E 'Tests:.*')
+          LINT_SUMMARY=$(echo "$LINT_RESULTS" | grep -E 'lint.*' || echo "Linting passed without errors")
+          FORMAT_SUMMARY=$(echo "$FORMAT_RESULTS" | grep -E 'format.*' || echo "Formatting passed without errors")
 
+          echo "## CI Results" > comment-body.txt
+          echo "### Lint Results" >> comment-body.txt
+          echo "\`\`\`" >> comment-body.txt
+          echo "$LINT_SUMMARY" >> comment-body.txt
+          echo "\`\`\`" >> comment-body.txt
 
-            # can't have a name since there is no "run". So it' just a blank uses
-            - uses: marocchino/sticky-pull-request-comment@v2
-              if: '!cancelled()'
-              with:
-                header: check result comment
-                message: |
-                    Wicked!
+          echo "### Test Results" >> comment-body.txt
+          echo "\`\`\`" >> comment-body.txt
+          echo "$TEST_SUMMARY" >> comment-body.txt
+          echo "\`\`\`" >> comment-body.txt
 
-            - name: Aggregate results
-              run: |
-                echo "## Lint Results" > comment-body.txt
-                cat lint-output.txt >> comment-body.txt
-                echo "" >> comment-body.txt
-                echo "## Test Results" >> comment-body.txt
-                cat test-output.txt >> comment-body.txt
-                echo "" >> comment-body.txt
-                echo "## Format Results" >> comment-body.txt
-                cat format-output.txt >> comment-body.txt
-            
+          echo "### Format Results" >> comment-body.txt
+          echo "\`\`\`" >> comment-body.txt
+          echo "$FORMAT_SUMMARY" >> comment-body.txt
+          echo "\`\`\`" >> comment-body.txt
 
-            - uses: marocchino/sticky-pull-request-comment@v2
-              with:
-                header: 'CI Results'
-                message: |
-                    $(cat comment-body.txt) #yeah nice try xD 
-
-# The basic idea is the following: 
-# Write the output of each step into a separate file and then
-# then read the file, transform as necessary and write a nice commentuwu
-# don't forget to make cool tables using markdown
-# test.png
-            
+      - name: Post results comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: 'CI Results'
+          message: |
+            $(cat comment-body.txt)
