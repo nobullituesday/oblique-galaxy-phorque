@@ -1,94 +1,70 @@
-# https://github.com/marketplace/actions/sticky-pull-request-comment
-# according to the documentation above we might need to adapt the messages with headers.
-
-name: Run Lint Test and Formatting Scrips
+name: Run Lint Test and Formatting Scripts
 
 on:
   pull_request:
     branches:
-        - main
+      - main
 
 jobs:
-    runChecks:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            pull-requests: write
-        #strategy??? Maybe we need strategy.
+  runChecks:
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: run checks
-              uses: actions/setup-node@v4
-              # Might be good to test using different node versions
-              
-            - run: npm ci
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '14'
 
+      - name: Install dependencies
+        run: npm ci
 
-            - name: run tests
-              if: '!cancelled()'
-              run: |
-                echo "Running tests...."
-                npm run test | tee -a test-output.txt
-                echo "Test completed!!"
+      - name: Run tests and capture output
+        run: |
+          echo "Running tests...."
+          npm run test | tee test-output.txt
+          echo "Test completed!!"
 
+      - name: Run linting
+        run: |
+          npm run lint | tee lint-output.txt
 
-            - name: run lint
-              if: '!cancelled()'
-              run: |
-                npm run lint | tee lint-output.txt
+      - name: Run code formatting check
+        run: |
+          npm run format | tee format-output.txt
 
+      - name: Aggregate results and post comment
+        run: |
+          set -e
 
-            - name: run format
-              if: '!cancelled()'
-              run: |
-                npm run format | tee format-output.txt
+          # Read outputs
+          TEST_RESULTS=$(cat test-output.txt)
+          LINT_RESULTS=$(cat lint-output.txt)
+          FORMAT_RESULTS=$(cat format-output.txt)
 
+          # Extract summaries
+          TEST_SUMMARY=$(echo "$TEST_RESULTS" | grep -E 'Tests:.*' || echo "Uh oh, Something Happened :/")
+          LINT_SUMMARY=$(echo "$LINT_RESULTS" | grep -E 'lint.*' || echo "Uh Oh Something happened :/")
+          FORMAT_SUMMARY=$(echo "$FORMAT_RESULTS" | grep -E 'format.*' || echo "uh oh, something happened :/")
 
-      
+          # Prepare comment body
+          COMMENT_BODY="## CI Results\n\n"
+          COMMENT_BODY+="### Lint Results\n"
+          COMMENT_BODY+="\`\`\`\n$LINT_SUMMARY\n\`\`\`\n\n"
+          COMMENT_BODY+="### Test Results\n"
+          COMMENT_BODY+="\`\`\`\n$TEST_SUMMARY\n\`\`\`\n\n"
+          COMMENT_BODY+="### Format Results\n"
+          COMMENT_BODY+="\`\`\`\n$FORMAT_SUMMARY\n\`\`\`\n"
 
-            - name: Aggregate results
-              run: |
-                set -e
-      
-                touch test-output.txt lint-output.txt format-output.txt
-      
-                TEST_SUMMARY=$(npm run test)
+          # Save comment body to environment variable
+          echo "COMMENT_BODY<<EOF" >> $GITHUB_ENV
+          echo "$COMMENT_BODY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-                TEST_RESULTS=$(echo "$TEST_SUMMARY" | grep -E 'Tests:.*' || echo "Uh oh, Something Happened :/")
-                LINT_RESULTS=$(cat lint-output.txt)
-                FORMAT_RESULTS=$(cat format-output.txt)
-      
-                TEST_SUMMARY=$(echo "$TEST_RESULTS")
-                LINT_SUMMARY=$(echo "$LINT_RESULTS" | grep -E 'lint.*' || echo "Uh Oh Something happened :/")
-                FORMAT_SUMMARY=$(echo "$FORMAT_RESULTS" | grep -E 'format.*' || echo "uh oh, something happened :/")
-      
-                echo "## CI Results" > comment-body.txt
-                echo "### Lint Results" >> comment-body.txt
-                echo "\`\`\`" >> comment-body.txt
-                echo "$LINT_SUMMARY" >> comment-body.txt
-                echo "\`\`\`" >> comment-body.txt
-      
-                echo "### Test Results" >> comment-body.txt
-                echo "\`\`\`" >> comment-body.txt
-                echo "$TEST_SUMMARY" >> comment-body.txt
-                echo "\`\`\`" >> comment-body.txt
-      
-                echo "### Format Results" >> comment-body.txt
-                echo "\`\`\`" >> comment-body.txt
-                echo "$FORMAT_SUMMARY" >> comment-body.txt
-                echo "\`\`\`" >> comment-body.txt
-
-                COMMENT_BODY=$(cat comment-body.txt)
-                echo "COMMENT_BODY<<EOF" >> $GITHUB_ENV
-                echo "$COMMENT_BODY" >> $GITHUB_ENV
-                echo "EOF" >> $GITHUB_ENV
-            
-            - name: Post results comment
-              uses: marocchino/sticky-pull-request-comment@v2
-              with:
-                header: 'CI Results'
-                message: |
-                  ${{ env.COMMENT_BODY }}
-                  
+      - name: Post results comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: 'CI Results'
+          message: ${{ env.COMMENT_BODY }}
