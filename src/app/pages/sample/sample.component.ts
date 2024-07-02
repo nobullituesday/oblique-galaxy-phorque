@@ -30,3 +30,4 @@ export class SampleComponent implements OnInit {
 		this.items = this.tree.items.map(item => new ObNavTreeItemModel(item));
 	}
 }
+
