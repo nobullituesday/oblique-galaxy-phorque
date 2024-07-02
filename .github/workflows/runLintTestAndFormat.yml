@@ -29,7 +29,7 @@ jobs:
             - name: run tests
               if: '!cancelled()'
               run: |
-                npm run test | tee test-output.txt
+                npm run test | tee -a test-output.txt
 
 
             - name: run lint
