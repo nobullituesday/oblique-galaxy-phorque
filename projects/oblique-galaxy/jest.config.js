@@ -3,7 +3,7 @@
 module.exports = require("../../tests/jest.config");
 module.exports.roots = ["<rootDir>/projects/oblique-galaxy"];
 module.exports.displayName = {
-	name: "Oblique",
+	name: "oblique-galaxy",
 	color: "cyan",
 };
 module.exports.coverageDirectory = "<rootDir>/coverage/oblique-galaxy";
@@ -17,6 +17,7 @@ module.exports.collectCoverageFrom = [
 	"!**/http-api-interceptor.ts",
 	"!**/off-canvas-container.directive.ts",
 	"!**/schema-required.directive.ts",
+	"!**/*.stories.ts",
 ];
 module.exports.coverageThreshold = {
 	global: {
