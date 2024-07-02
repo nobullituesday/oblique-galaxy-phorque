@@ -36,13 +36,13 @@ jobs:
             - name: run lint
               if: '!cancelled()'
               run: |
-                npm run lint | tee lint-output.txt
+                npm run lint 2>&1 | tee lint-output.txt
 
 
             - name: run format
               if: '!cancelled()'
               run: |
-                npm run format | tee format-output.txt
+                npm run format 2>&1 | tee format-output.txt
 
 
       
