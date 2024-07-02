@@ -55,7 +55,7 @@ jobs:
       
                 TEST_SUMMARY=$(cat test-output.txt)
 
-                TEST_RESULTS=$(echo "$TEST_SUMMARY" | grep -E 'Tests:.*|Test Suites:.*' || echo "Uh oh, Something Happened :/")
+                TEST_RESULTS=$(echo "$TEST_SUMMARY" | grep -E 'Test Suites:.*|Tests:.*' -A 1 || echo "Uh oh, Something Happened :/")
                 LINT_RESULTS=$(cat lint-output.txt)
                 FORMAT_RESULTS=$(cat format-output.txt)
       
