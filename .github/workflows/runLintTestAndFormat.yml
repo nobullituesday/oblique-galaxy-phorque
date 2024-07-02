@@ -1,7 +1,7 @@
 # https://github.com/marketplace/actions/sticky-pull-request-comment
 # according to the documentation above we might need to adapt the messages with headers.
 
-name: Run Lint Test and Formatting Scrips
+name: Run Lint Test and Formatting Scripts
 
 on:
   pull_request:
@@ -71,8 +71,7 @@ jobs:
       
                 echo "### Test Results" >> comment-body.txt
                 echo "\`\`\`" >> comment-body.txt
-                echo "$TEST_SUMMARY" >> comment-body.txt
-                echo "\`\`\`" >> comment-body.txt
+                echo "$TEST_SUMMARY" | sed 's/\(Test Suites:.*\)/\n\1/g' >> comment-body.txt                echo "\`\`\`" >> comment-body.txt
       
                 echo "### Format Results" >> comment-body.txt
                 echo "\`\`\`" >> comment-body.txt
