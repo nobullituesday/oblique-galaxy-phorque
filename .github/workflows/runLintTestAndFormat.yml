@@ -72,7 +72,8 @@ jobs:
                 echo "### Test Results" >> comment-body.txt
                 echo "\`\`\`" >> comment-body.txt
                 echo "$TEST_SUMMARY" | sed 's/\(Test Suites:.*\)/\n\1/g' >> comment-body.txt
-      
+                echo "\`\`\`" >> comment-body.txt
+
                 echo "### Format Results" >> comment-body.txt
                 echo "\`\`\`" >> comment-body.txt
                 echo "$FORMAT_SUMMARY" >> comment-body.txt
