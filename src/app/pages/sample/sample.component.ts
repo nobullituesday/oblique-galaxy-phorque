@@ -20,11 +20,15 @@ export class SampleComponent implements OnInit {
 				label: 'Package Outdated'
 			},
 			{
+
+
+
 				id: 'tree-item-2',
-				label: 'example 2'
+				label: 'example 2'    
+				
 			}
 		]
-	};
+	}
 
 	ngOnInit(): void {
 		this.items = this.tree.items.map(item => new ObNavTreeItemModel(item));
