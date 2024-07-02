@@ -12,7 +12,7 @@ import {MatTab, MatTabGroup} from '@angular/material/tabs';
 })
 export class SampleComponent implements OnInit {
 	items: ObNavTreeItemModel[] = [];
-	private readonly tree = {
+	public readonly tree = {
 		label: 'Navigation Tree',
 		items: [
 			{
