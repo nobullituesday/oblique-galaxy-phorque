@@ -29,7 +29,9 @@ jobs:
             - name: run tests
               if: '!cancelled()'
               run: |
+                echo "Running tests...."
                 npm run test | tee -a test-output.txt
+                echo "Test completed!!"
 
 
             - name: run lint
