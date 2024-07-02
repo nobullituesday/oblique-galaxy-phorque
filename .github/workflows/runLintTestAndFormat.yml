@@ -1,6 +1,3 @@
-# https://github.com/marketplace/actions/sticky-pull-request-comment
-# according to the documentation above we might need to adapt the messages with headers.
-
 name: Run Lint Test and Formatting Scripts
 
 on:
@@ -14,29 +11,27 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    #strategy??? Maybe we need strategy.
 
     steps:
       - uses: actions/checkout@v4
 
       - name: run checks
         uses: actions/setup-node@v4
-        # Might be good to test using different node versions
 
       - run: npm ci
 
       - name: run tests
-        if: '!cancelled()'
+        if: "${{ '!cancelled()' }}"
         run: |
           npm run test 2>&1 | tee test-output.txt
 
       - name: run lint
-        if: '!cancelled()'
+        if: "${{ '!cancelled()' }}"
         run: |
           npm run lint 2>&1 | tee lint-output.txt
 
       - name: run format
-        if: '!cancelled()'
+        if: "${{ '!cancelled()' }}"
         run: |
           npm run format 2>&1 | tee format-output.txt
 
