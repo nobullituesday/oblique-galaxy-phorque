@@ -52,10 +52,11 @@ jobs:
               run: |
                 set -e
       
-                # Ensure all files exist
                 touch test-output.txt lint-output.txt format-output.txt
       
-                TEST_RESULTS=$(cat test-output.txt)
+                TEST_SUMMARY=$(npm run test)
+
+                TEST_RESULTS=$(echo "$TEST_SUMMARY" | grep -E 'Tests:.*' || echo "Uh oh, Something Happened :/")
                 LINT_RESULTS=$(cat lint-output.txt)
                 FORMAT_RESULTS=$(cat format-output.txt)
       
