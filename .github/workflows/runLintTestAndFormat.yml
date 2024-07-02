@@ -54,16 +54,15 @@ jobs:
                 touch test-output.txt lint-output.txt format-output.txt
       
                 TEST_SUMMARY=$(cat test-output.txt)
-
-                TEST_RESULTS=$(echo "$TEST_SUMMARY" | grep -E 'Test Suites:.*|Tests:.*' || echo "Uh oh, Something Happened :/")
                 LINT_RESULTS=$(cat lint-output.txt)
                 FORMAT_RESULTS=$(cat format-output.txt)
       
-                TEST_SUMMARY=$(echo "$TEST_RESULTS")
-                LINT_SUMMARY=$(echo "$LINT_RESULTS" | grep -E 'lint.*' || echo "Uh Oh Something happened :/")
-                FORMAT_SUMMARY=$(echo "$FORMAT_RESULTS" | grep -E 'format.*' || echo "uh oh, something happened :/")
+                TEST_SUMMARY=$(echo "$TEST_SUMMARY" | grep -E 'Test Suites:.*|Tests:.*' || echo "No information found")
+                LINT_SUMMARY=$(echo "$LINT_RESULTS" | grep -E 'lint.*' || echo "No information found")
+                FORMAT_SUMMARY=$(echo "$FORMAT_RESULTS" | grep -E 'format.*' || echo "No information found")
       
                 echo "## CI Results" > comment-body.txt
+
                 echo "### Lint Results" >> comment-body.txt
                 echo "\`\`\`" >> comment-body.txt
                 echo "$LINT_SUMMARY" >> comment-body.txt
